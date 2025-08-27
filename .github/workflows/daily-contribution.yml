@@ -1,0 +1,42 @@
+name: Daily Contributions
+
+on:
+  schedule:
+    - cron: '0 0 * * 1-5'  # Runs Monday-Friday at midnight UTC
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  make-contribution:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # Checkout with full commit history
+          fetch-depth: 0
+          
+      - name: Setup Git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          
+      - name: Make daily contribution
+        run: |
+          # Create a timestamp for the contribution
+          echo "Making daily contribution at $(date)"
+          
+          # Add a new line with timestamp to the contributions log
+          echo "$(date '+%Y-%m-%d %H:%M:%S UTC') - Automated daily contribution" >> contributions.log
+          
+          # Also update the README with a contribution counter
+          if [ -f "README.md" ]; then
+            # Count existing contributions
+            contribution_count=$(grep -c "Automated daily contribution" contributions.log || echo "0")
+            echo "Total contributions: $contribution_count"
+          fi
+          
+      - name: Commit and push changes
+        run: |
+          git add contributions.log
+          git commit -m "Daily contribution - $(date '+%Y-%m-%d')" || exit 0
+          git push origin main
