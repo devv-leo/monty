@@ -61,10 +61,6 @@ jspm_packages/
 ehthumbs.db
 Thumbs.db
 
-# Logs
-logs
-*.log
-
 # Temporary files
 tmp/
 temp/
