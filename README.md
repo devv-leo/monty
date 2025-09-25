@@ -6,14 +6,14 @@ A simple GitHub Actions automation project that creates daily contributions to m
 
 This repository uses GitHub Actions to automatically create daily commits, helping to maintain a consistent contribution streak on your GitHub profile. The automation runs on a schedule and creates meaningful commits by updating a contributions log.
 
-## ⏰ Build Schedule
+## Build Schedule
 
 The automation runs on the following schedule:
 - **Frequency**: Every weekday (Sunday through Friday)
 - **Time**: Midnight UTC (00:00)
 - **Cron Expression**: `0 0 * * 0-5`
 
-## 🔧 How to Modify the Build Schedule
+## How to Modify the Build Schedule
 
 You can modify the build schedule by editing the `.github/workflows/daily-contribution.yml` file:
 
@@ -38,7 +38,7 @@ You can also manually trigger the workflow:
 2. Select "Daily Contributions" workflow
 3. Click "Run workflow" button
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 monty/
@@ -50,13 +50,13 @@ monty/
 └── .gitignore                       # Git ignore rules
 ```
 
-📊 All automated contributions are logged in `contributions.log` with timestamps:
+All automated contributions are logged in `contributions.log` with timestamps:
 ```
 2025-08-30 00:00:00 UTC - Repository initialized with automated contribution setup
 2025-01-XX XX:XX:XX UTC - Automated daily contribution
 ```
 
-## ⚙️ Customization Options
+## Customization Options
 
 ### Modify Contribution Message
 Edit the workflow file to change what gets added to the log:
@@ -64,7 +64,7 @@ Edit the workflow file to change what gets added to the log:
 echo "$(date '+%Y-%m-%d %H:%M:%S UTC') - Your custom message here" >> contributions.log
 ```
 
-📝 - This automation creates genuine commits that will appear on your GitHub profile
+This automation creates genuine commits that will appear on your GitHub profile
 
 ## 🤝 Contributing
 
