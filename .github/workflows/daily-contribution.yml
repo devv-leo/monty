@@ -2,7 +2,7 @@ name: Daily Contributions
 
 on:
   schedule:
-    - cron: '0 12 * * 0-6'  # Runs Sunday-Saturday at noon UTC
+    - cron: '0 0 * * 1-6'  # Runs Monday-Saturday at midnight UTC
   workflow_dispatch:  # Allows manual triggering
 
 jobs:
@@ -19,21 +19,57 @@ jobs:
           git config --global user.name "devv-leo"
           git config --global user.email "lekan.code@gmail.com"
 
+      - name: Calculate contribution pattern
+        run: |
+          # Get current date in days since epoch
+          current_date=$(date +%s)
+          days_since_epoch=$((current_date / 86400))
+          
+          # Check if today is a "bonus day" (every 4 days)
+          remainder=$((days_since_epoch % 4))
+          
+          if [ $remainder -eq 0 ]; then
+            echo "BONUS_DAY=true" >> $GITHUB_ENV
+            echo "COMMIT_COUNT=3" >> $GITHUB_ENV
+            echo "Today is a bonus day - will make 3 commits"
+          else
+            echo "BONUS_DAY=false" >> $GITHUB_ENV
+            echo "COMMIT_COUNT=1" >> $GITHUB_ENV
+            echo "Normal day - will make 1 commit"
+          fi
+
       - name: Update contribution counter in README
         run: |
           # Find the current counter value
           if grep -qE "^Total contributions: [0-9]+" README.md; then
             count=$(grep -E "^Total contributions: [0-9]+" README.md | head -n 1 | grep -oE "[0-9]+")
-            new_count=$((count+1))
+            new_count=$((count + $COMMIT_COUNT))
             # Update the line with the new count
             sed -i "s/^Total contributions: [0-9]\+/Total contributions: ${new_count}/" README.md
           else
             # If not present, add it under the Contribution Counter section
-            echo -e "\n## Contribution Counter\n\nTotal contributions: 1\n" >> README.md
+            echo -e "\n## Contribution Counter\n\nTotal contributions: $COMMIT_COUNT\n" >> README.md
           fi
 
-      - name: Commit and push changes
+      - name: Make commits
         run: |
+          # Always make the first commit (counter update)
           git add README.md
           git commit -m "Increment counter" || exit 0
+          
+          # If it's a bonus day, make 2 additional commits
+          if [ "$BONUS_DAY" = "true" ]; then
+            # Add a timestamp comment to README for bonus commit 1
+            echo "<!-- Bonus contribution 1 - $(date '+%Y-%m-%d %H:%M:%S') -->" >> README.md
+            git add README.md
+            git commit -m "Second increment" || exit 0
+            
+            # Add another timestamp comment to README for bonus commit 2
+            echo "<!-- Bonus contribution 2 - $(date '+%Y-%m-%d %H:%M:%S') -->" >> README.md
+            git add README.md
+            git commit -m "Third increment" || exit 0
+          fi
+
+      - name: Push changes
+        run: |
           git push origin main
