@@ -2,7 +2,7 @@ name: Daily Contributions
 
 on:
   schedule:
-    - cron: '0 12 * * 0-6'  # Runs Sunday-Saturday at midnight UTC
+    - cron: '0 12 * * 0-6'  # Runs Sunday-Saturday at noon UTC
   workflow_dispatch:  # Allows manual triggering
 
 jobs:
@@ -12,31 +12,28 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          # Checkout with full commit history
           fetch-depth: 0
-          
+
       - name: Setup Git
         run: |
           git config --global user.name "devv-leo"
           git config --global user.email "lekan.code@gmail.com"
-          
-      - name: Make daily contribution
+
+      - name: Update contribution counter in README
         run: |
-          # Create a timestamp for the contribution
-          echo "Making daily contribution at $(date)"
-          
-          # Add a new line with timestamp to the contributions log
-          echo "$(date '+%Y-%m-%d %H:%M:%S UTC') - Today's contribution" >> contributions.log
-          
-          # Also update the README with a contribution counter
-          if [ -f "README.md" ]; then
-            # Count existing contributions
-            contribution_count=$(grep -c "Today's contribution" contributions.log || echo "0")
-            echo "Total contributions: $contribution_count"
+          # Find the current counter value
+          if grep -qE "^Total contributions: [0-9]+" README.md; then
+            count=$(grep -E "^Total contributions: [0-9]+" README.md | head -n 1 | grep -oE "[0-9]+")
+            new_count=$((count+1))
+            # Update the line with the new count
+            sed -i "s/^Total contributions: [0-9]\+/Total contributions: ${new_count}/" README.md
+          else
+            # If not present, add it under the Contribution Counter section
+            echo -e "\n## Contribution Counter\n\nTotal contributions: 1\n" >> README.md
           fi
-          
+
       - name: Commit and push changes
         run: |
-          git add contributions.log
-          git commit -m "Today's contribution - $(date '+%Y-%m-%d')" || exit 0
+          git add README.md
+          git commit -m "Increment counter" || exit 0
           git push origin main
