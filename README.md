@@ -51,7 +51,7 @@ monty/
 
 ## Contribution Counter
 
-Total contributions: 2
+Total contributions: 3
 
 ## 🫱 Contributing
 
